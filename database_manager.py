@@ -5,8 +5,6 @@ from datetime import datetime, timedelta
 def init_db():
     conn = sqlite3.connect("railway.db")
     cursor = conn.cursor()
-    
-    # 1. Use IF NOT EXISTS instead of dropping the table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS seats (
             seat_id INTEGER PRIMARY KEY,
@@ -19,8 +17,6 @@ def init_db():
     if cursor.fetchone()[0] == 0:
         cursor.executemany("INSERT INTO seats (seat_id, status, user_id) VALUES (?, ?, ?)",
                            [(i, 'available', None) for i in range(1, 6)])
-    cursor.executemany("INSERT INTO seats (seat_id, status, user_id) VALUES (?, ?, ?)",
-                       [(i, 'available', None) for i in range(1, 6)])
     conn.commit()
     conn.close()
 
@@ -28,9 +24,9 @@ def search_available_seats():
     conn = sqlite3.connect("railway.db")
     cursor = conn.cursor()
     cursor.execute("SELECT seat_id FROM seats WHERE status = 'available'")
-    available_seats = [row[0] for row in cursor.fetchall()]
+    available = [row[0] for row in cursor.fetchall()]
     conn.close()
-    return available_seats
+    return available
 
 def book_seat_atomic(seat_id, user_id):
     conn = sqlite3.connect("railway.db")
@@ -66,11 +62,3 @@ def run_janitor():
     conn.execute("UPDATE seats SET status = 'available', user_id = NULL WHERE status = 'locked' AND last_updated < ?", (threshold,))
     conn.commit()
     conn.close()
-
-def get_all_seat_statuses():
-    conn = sqlite3.connect("railway.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT seat_id, status, user_id FROM seats ORDER BY seat_id")
-    all_seats = cursor.fetchall()
-    conn.close()
-    return all_seats
