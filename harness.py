@@ -1,6 +1,6 @@
 from langgraph.checkpoint.memory import MemorySaver
-# from graph_orchestrator import graph # The 'graph' object is already available in the notebook scope
-# from database_manager import run_janitor # The 'run_janitor' function is already available in the notebook scope
+from graph_orchestrator import graph
+from database_manager import run_janitor
 import uuid
 
 # Memory for persistence
@@ -32,6 +32,3 @@ def run_harness(task_input, seat_id=None, user_id="user_123"):
         final_state = event
 
     return final_state
-
-# Integration with Streamlit
-# You will call this function inside your app.py file
