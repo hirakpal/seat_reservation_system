@@ -1,3 +1,4 @@
+# database_manager.py
 import sqlite3
 from datetime import datetime, timedelta
 
@@ -18,9 +19,21 @@ def init_db():
     conn.commit()
     conn.close()
 
+def search_available_seats():
+    conn = sqlite3.connect("railway.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT seat_id FROM seats WHERE status = 'available'")
+    available_seats = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return available_seats
+
 def book_seat_atomic(seat_id, user_id):
     conn = sqlite3.connect("railway.db")
     cursor = conn.cursor()
+    cursor.execute("SELECT seat_id FROM seats WHERE seat_id = ?", (seat_id,))
+    if cursor.fetchone() is None:
+        conn.close()
+        return "not_found"
     cursor.execute("""
         UPDATE seats SET status = 'booked', user_id = ?, last_updated = CURRENT_TIMESTAMP
         WHERE seat_id = ? AND status = 'available'
@@ -28,17 +41,15 @@ def book_seat_atomic(seat_id, user_id):
     success = cursor.rowcount > 0
     conn.commit()
     conn.close()
-    return success
+    return True if success else "not_available"
 
 def cancel_booking(seat_id, user_id):
     conn = sqlite3.connect("railway.db")
     cursor = conn.cursor()
-    # Ensure the user can only cancel their own booking
     cursor.execute("""
         UPDATE seats SET status = 'available', user_id = NULL
         WHERE seat_id = ? AND user_id = ?
     """, (seat_id, user_id))
-
     success = cursor.rowcount > 0
     conn.commit()
     conn.close()
@@ -50,3 +61,11 @@ def run_janitor():
     conn.execute("UPDATE seats SET status = 'available', user_id = NULL WHERE status = 'locked' AND last_updated < ?", (threshold,))
     conn.commit()
     conn.close()
+
+def get_all_seat_statuses():
+    conn = sqlite3.connect("railway.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT seat_id, status, user_id FROM seats ORDER BY seat_id")
+    all_seats = cursor.fetchall()
+    conn.close()
+    return all_seats
