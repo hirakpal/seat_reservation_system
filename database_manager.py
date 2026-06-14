@@ -5,15 +5,20 @@ from datetime import datetime, timedelta
 def init_db():
     conn = sqlite3.connect("railway.db")
     cursor = conn.cursor()
-    cursor.execute("DROP TABLE IF EXISTS seats")
+    
+    # 1. Use IF NOT EXISTS instead of dropping the table
     cursor.execute("""
-        CREATE TABLE seats (
+        CREATE TABLE IF NOT EXISTS seats (
             seat_id INTEGER PRIMARY KEY,
             status TEXT DEFAULT 'available',
             user_id TEXT,
             last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    cursor.execute("SELECT count(*) FROM seats")
+    if cursor.fetchone()[0] == 0:
+        cursor.executemany("INSERT INTO seats (seat_id, status, user_id) VALUES (?, ?, ?)",
+                           [(i, 'available', None) for i in range(1, 6)])
     cursor.executemany("INSERT INTO seats (seat_id, status, user_id) VALUES (?, ?, ?)",
                        [(i, 'available', None) for i in range(1, 6)])
     conn.commit()
