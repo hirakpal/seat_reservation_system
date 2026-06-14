@@ -46,8 +46,8 @@ builder.set_entry_point("agent"); builder.add_edge("agent", END)
 graph = builder.compile(checkpointer=MemorySaver())
 
 # --- 3. Streamlit UI ---
-st.set_page_config(layout="wide", page_title="Railway Reservation")
-st.title("🚆 Railway Reservation System")
+st.set_page_config(layout="wide", page_title="Seat Reservation")
+st.title("Seat Reservation System")
 init_db()
 
 # Initialize session state for persistent feedback
