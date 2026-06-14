@@ -1,4 +1,4 @@
-# main.py multiple seat booking/cancellations
+# main.py multiple seat booking/cancellations with GenAI hooks and user name input
 
 import streamlit as st
 import pandas as pd
@@ -21,6 +21,7 @@ class State(TypedDict):
 
 def agent_logic(state):
     action, sids = state['action'], state['seat_ids']
+    user = state.get('user', 'user1')
     results = []
     for sid in sids:
         if action == "book":
@@ -63,6 +64,8 @@ with col1:
     if st.button("Process"):
         if not sids:
             st.warning("Please select at least one seat.")
+        elif not user:
+            st.warning("Please enter a user name.")
         else:
             act_map = {"Book Seat": "book", "Cancel Seat": "cancel"}
             res = graph.invoke(
