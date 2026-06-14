@@ -46,7 +46,7 @@ graph = graph_builder.compile(checkpointer=MemorySaver())
 
 # --- 4. Streamlit UI ---
 st.set_page_config(layout="wide")
-st.title("🚆 AI Railway Reservation")
+st.title("AI Seat Reservation")
 init_db()
 
 col1, col2 = st.columns([1, 2])
