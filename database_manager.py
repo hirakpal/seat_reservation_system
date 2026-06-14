@@ -73,3 +73,11 @@ def run_janitor():
     conn.execute("UPDATE seats SET status = 'available', user_id = NULL WHERE status = 'locked' AND last_updated < ?", (threshold,))
     conn.commit()
     conn.close()
+
+def get_all_seat_data():
+    conn = sqlite3.connect("railway.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT seat_id, status, user_id FROM seats ORDER BY seat_id")
+    data = cursor.fetchall()
+    conn.close()
+    return data
