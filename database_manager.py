@@ -13,7 +13,7 @@ def init_db():
             last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
-    cursor.executemany("INSERT INTO seats (seat_id, status, user_id) VALUES (?, ?, ?)", 
+    cursor.executemany("INSERT INTO seats (seat_id, status, user_id) VALUES (?, ?, ?)",
                        [(i, 'available', None) for i in range(1, 6)])
     conn.commit()
     conn.close()
@@ -22,7 +22,7 @@ def book_seat_atomic(seat_id, user_id):
     conn = sqlite3.connect("railway.db")
     cursor = conn.cursor()
     cursor.execute("""
-        UPDATE seats SET status = 'booked', user_id = ?, last_updated = CURRENT_TIMESTAMP 
+        UPDATE seats SET status = 'booked', user_id = ?, last_updated = CURRENT_TIMESTAMP
         WHERE seat_id = ? AND status = 'available'
     """, (user_id, seat_id))
     success = cursor.rowcount > 0
@@ -35,10 +35,10 @@ def cancel_booking(seat_id, user_id):
     cursor = conn.cursor()
     # Ensure the user can only cancel their own booking
     cursor.execute("""
-        UPDATE seats SET status = 'available', user_id = NULL 
+        UPDATE seats SET status = 'available', user_id = NULL
         WHERE seat_id = ? AND user_id = ?
     """, (seat_id, user_id))
-    
+
     success = cursor.rowcount > 0
     conn.commit()
     conn.close()
